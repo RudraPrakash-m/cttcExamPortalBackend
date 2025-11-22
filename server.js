@@ -7,23 +7,16 @@ const publicRouter = require("./routes/PublicRoute");
 
 const app = express();
 
-<<<<<<< HEAD
 app.use(express.json());
 
 app.use(express.urlencoded());
 
 // In your main server file, update CORS:
-=======
->>>>>>> 0ebfa5b (added)
 app.use(
   cors({
     origin: ["http://localhost:5173","https://cttcexam.netlify.app/"], // or your frontend URL
     credentials: true,
-<<<<<<< HEAD
   })
-=======
-})
->>>>>>> 0ebfa5b (added)
 );
 
 connectDB();
