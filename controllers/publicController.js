@@ -1,36 +1,103 @@
 const STUDENT_MODEL = require("../models/studentModel");
 const TEACHER_MODEL = require("../models/teacherModel");
 
-const findrole = async (req, res) => {
+// --------------------------------------
+// CHECK IF USER EXISTS
+// --------------------------------------
+const checkUserExistance = async (req, res) => {
   try {
-    console.log("Incoming user:", req.body);
+    const { id } = req.body;
 
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ message: "Email missing" });
-    }
-
-    // FIND STUDENT BASED ON EMAIL
-    const user = await STUDENT_MODEL.findOne({ email }) || await TEACHER_MODEL.findOne({email});
-
-    if (!user) {
-      return res.status(404).json({
-        role: "none",
-        message: "User not found in users",
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing Clerk user ID",
       });
     }
 
+    const existingUser =
+      (await STUDENT_MODEL.findOne({ clerkId: id })) ||
+      (await TEACHER_MODEL.findOne({ clerkId: id }));
+
     return res.status(200).json({
-      role: user.role,
-      message: "Role fetched successfully",
-      user: user,
+      success: true,
+      exists: !!existingUser,
     });
 
   } catch (error) {
-    console.error("SERVER ERROR:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error checking user existance:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
-module.exports = findrole;
+
+// --------------------------------------
+// REGISTER USER (STUDENT / TEACHER)
+// --------------------------------------
+const registerUser = async (req, res) => {
+  try {
+    const { id, email, name, role } = req.body;
+
+    // Validate incoming data
+    if (!id || !email || !name || !role) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
+    let userModel;
+
+    // Choose model
+    if (role === "student") {
+      userModel = STUDENT_MODEL;
+    } else if (role === "faculty") {
+      userModel = TEACHER_MODEL;
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+    }
+
+    // Check if user already exists
+    const existing = await userModel.findOne({ clerkId: id });
+    if (existing) {
+      return res.status(200).json({
+        success: true,
+        message: "User already exists",
+        user: existing,
+        exists: true,
+      });
+    }
+
+    // Create new user
+    const newUser = await userModel.create({
+      clerkId: id,
+      email,
+      name,
+      role,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      exists: false,
+      user: newUser,
+    });
+
+  } catch (error) {
+    console.error("Error registering user:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+module.exports = { checkUserExistance, registerUser };
