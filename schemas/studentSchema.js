@@ -22,7 +22,6 @@ const studentSchema = new mongoose.Schema(
 
     examid: {
       type: String,
-      required: true,
       unique: true,
       trim: true,
     },
@@ -30,7 +29,6 @@ const studentSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["student", "faculty", "admin"],
-      default: "student",
     },
 
     isVerified: {
