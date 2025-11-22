@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema(
   {
-    id:{
+    clerk_id:{
       type: String,
       required: true,
     },
@@ -19,7 +19,15 @@ const studentSchema = new mongoose.Schema(
       lowercase: true,
       unique: true,
     },
+    roll_no: {
+      type: Number,
+      required: true,
+      unique: true,
+      lowercase: true,
+    },
+    batch: {
 
+    },
     examid: {
       type: String,
       unique: true,
