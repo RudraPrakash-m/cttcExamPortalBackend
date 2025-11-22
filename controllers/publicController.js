@@ -55,7 +55,7 @@ const registerUser = async (req, res) => {
     // Choose model
     if (role === "student") {
       userModel = STUDENT_MODEL;
-    } else if (role === "faculty") {
+    } else if (role === "teacher") {
       userModel = TEACHER_MODEL;
     } else {
       return res.status(400).json({

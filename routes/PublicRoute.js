@@ -5,7 +5,7 @@ const wrapAsync = require('../utils/wrapAsync');
 const publicRouter = express.Router();
 
 
-publicRouter.post("/api/userExistence", wrapAsync(checkUserExistance))
+publicRouter.post("/userExistence", wrapAsync(checkUserExistance))
 publicRouter.post("/register", wrapAsync(registerUser));
 
 module.exports = publicRouter;
