@@ -7,7 +7,17 @@ const publicRouter = require("./routes/PublicRoute");
 
 const app = express();
 
-app.use(cors());
+app.use(express.json());
+
+app.use(express.urlencoded());
+
+// In your main server file, update CORS:
+app.use(
+  cors({
+    origin: ["http://localhost:5173","https://cttcexam.netlify.app/"], // or your frontend URL
+    credentials: true,
+  })
+);
 
 connectDB();
 
@@ -17,7 +27,7 @@ app.get("/api", (req, res) => {
 
 app.use("/api", studentRoutes);
 
-app.use("/api", publicRouter)
+app.use("/api", publicRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`server started at port http://localhost:${process.env.PORT}`);

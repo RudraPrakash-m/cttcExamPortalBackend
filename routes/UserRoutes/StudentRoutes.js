@@ -1,8 +1,8 @@
-const express = require("express")
-const allstudents = require("../../controllers/studentControler")
+const express = require("express");
+const allstudents = require("../../controllers/studentControler");
 
-const studentRoutes = express.Router()
+const studentRoutes = express.Router();
 
-studentRoutes.get("/allstudents",allstudents)
+studentRoutes.get("/allstudents", allstudents);
 
-module.exports = studentRoutes
+module.exports = studentRoutes;

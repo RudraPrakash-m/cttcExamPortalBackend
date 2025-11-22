@@ -1,8 +1,8 @@
-const express = require('express')
-const findrole = require('../controllers/publicController')
+const express = require("express");
+const findrole = require("../controllers/publicController");
 
-const publicRouter = express.Router()
+const publicRouter = express.Router();
 
-publicRouter.get("/findrole",findrole)
+publicRouter.post("/findrole", findrole);
 
-module.exports = publicRouter
+module.exports = publicRouter;
