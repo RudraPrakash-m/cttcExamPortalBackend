@@ -1,31 +1,36 @@
 const STUDENT_MODEL = require("../models/studentModel");
 const TEACHER_MODEL = require("../models/teacherModel");
 
-module.exports.findrole = async (req, res) => {
-  const { id } = req.body;
+const findrole = async (req, res) => {
+  try {
+    console.log("Incoming user:", req.body);
 
-  if (!id) {
-    return res.status(400).json({ message: "id is missing" });
-  }
+    const { email } = req.body;
 
-  // FIND USER (STUDENT OR TEACHER)
-  const user =
-    (await STUDENT_MODEL.findOne({ id })) ||
-    (await TEACHER_MODEL.findOne({ id }));
+    if (!email) {
+      return res.status(400).json({ message: "Email missing" });
+    }
 
-  if (!user) {
-    console.log("User not found for id:", id);
+    // FIND STUDENT BASED ON EMAIL
+    const user = await STUDENT_MODEL.findOne({ email }) || await TEACHER_MODEL.findOne({email});
+
+    if (!user) {
+      return res.status(404).json({
+        role: "none",
+        message: "User not found in users",
+      });
+    }
+
     return res.status(200).json({
-      role: "none",
-      message: "User not found",
-      exists: false,
+      role: user.role,
+      message: "Role fetched successfully",
+      user: user,
     });
-  }
 
-  return res.status(200).json({
-    role: user.role,
-    message: "Role fetched successfully",
-    exists: true,
-    user: user,
-  });
+  } catch (error) {
+    console.error("SERVER ERROR:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
+
+module.exports = findrole;
