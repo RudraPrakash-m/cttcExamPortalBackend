@@ -1,5 +1,5 @@
 const express = require("express");
-const {checkUserExistance, register} = require("../controllers/publicController")
+const {checkUserExistance, registerUser} = require("../controllers/publicController")
 const wrapAsync = require('../utils/wrapAsync');
 
 const publicRouter = express.Router();
