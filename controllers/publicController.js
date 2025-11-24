@@ -21,7 +21,7 @@ const checkUserExistance = async (req, res) => {
       (await TEACHER_MODEL.findOne({ clerkId: id }));
 
     if(!user){
-      return res.status(404).json({
+      return res.status(200).json({
       success: false,
       message: "user not found",
       role: null,
