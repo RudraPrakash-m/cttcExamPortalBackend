@@ -1,5 +1,6 @@
 const STUDENT_MODEL = require("../models/studentModel");
 const TEACHER_MODEL = require("../models/teacherModel");
+const ExpressError = require("../utils/ExpressError");
 
 // ---------------------------------------------------
 // CHECK USER EXISTENCE
@@ -19,9 +20,14 @@ const checkUserExistance = async (req, res) => {
       (await STUDENT_MODEL.findOne({ clerkId: id })) ||
       (await TEACHER_MODEL.findOne({ clerkId: id }));
 
+    if(!user){
+      throw new ExpressError(404, "user not found");
+    }
+    
     return res.status(200).json({
       success: true,
       exists: Boolean(user),
+      role: user.role,
     });
 
   } catch (error) {
