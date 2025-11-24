@@ -1,9 +1,9 @@
 const STUDENT_MODEL = require("../models/studentModel");
 const TEACHER_MODEL = require("../models/teacherModel");
 
-// --------------------------------------
-// CHECK IF USER EXISTS
-// --------------------------------------
+// ---------------------------------------------------
+// CHECK USER EXISTENCE
+// ---------------------------------------------------
 const checkUserExistance = async (req, res) => {
   try {
     const { id } = req.body;
@@ -15,18 +15,17 @@ const checkUserExistance = async (req, res) => {
       });
     }
 
-    const existingUser =
+    const user =
       (await STUDENT_MODEL.findOne({ clerkId: id })) ||
       (await TEACHER_MODEL.findOne({ clerkId: id }));
 
     return res.status(200).json({
       success: true,
-      exists: !!existingUser,
+      exists: Boolean(user),
     });
 
   } catch (error) {
-    console.error("Error checking user existance:", error);
-
+    console.error("Existence Check Error:", error);
     return res.status(500).json({
       success: false,
       message: "Server error",
@@ -34,64 +33,101 @@ const checkUserExistance = async (req, res) => {
   }
 };
 
+// ---------------------------------------------------
+// REGISTER USER (student / teacher)
+// ---------------------------------------------------
 
-// --------------------------------------
-// REGISTER USER (STUDENT / TEACHER)
-// --------------------------------------
 const registerUser = async (req, res) => {
   try {
-    const { id, email, name, role } = req.body;
+    const { clerkId, email, name, role, roll_no, batch } = req.body;
 
-    // Validate incoming data
-    if (!id || !email || !name || !role) {
+    // -------------------------------
+    // Basic validation
+    // -------------------------------
+    if (!clerkId || !email || !name || !role) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields",
       });
     }
 
-    let userModel;
-
-    // Choose model
-    if (role === "student") {
-      userModel = STUDENT_MODEL;
-    } else if (role === "teacher") {
-      userModel = TEACHER_MODEL;
-    } else {
+    // Determine model based on role
+    let model;
+    if (role === "student") model = STUDENT_MODEL;
+    else if (role === "teacher") model = TEACHER_MODEL;
+    else {
       return res.status(400).json({
         success: false,
-        message: "Invalid role",
+        message: "Invalid role type",
       });
     }
 
     // Check if user already exists
-    const existing = await userModel.findOne({ clerkId: id });
-    if (existing) {
+    const exists = await model.findOne({ clerkId });
+    if (exists) {
       return res.status(200).json({
         success: true,
-        message: "User already exists",
-        user: existing,
         exists: true,
+        message: "User already exists",
+        user: exists,
       });
     }
 
-    // Create new user
-    const newUser = await userModel.create({
-      clerkId: id,
+    // -------------------------------
+    // Generate backend-controlled IDs
+    // -------------------------------
+    let examId = null;
+    let quesId = null;
+
+    if (role === "student") {
+      if (!roll_no || !batch) {
+        return res.status(400).json({
+          success: false,
+          message: "roll_no and batch are required for student",
+        });
+      }
+      examId = `${clerkId}-${roll_no}`;
+    }
+
+    if (role === "teacher") {
+      quesId = `${clerkId}-QUES`;
+    }
+
+    // -------------------------------
+    // Create new user document
+    // -------------------------------
+    const newUser = await model.create({
+      clerkId,
       email,
       name,
       role,
+
+      // Student-only fields
+      roll_no: role === "student" ? roll_no : undefined,
+      batch: role === "student" ? batch : undefined,
+      examId: role === "student" ? examId : undefined,
+
+      // Teacher-only fields
+      quesId: role === "teacher" ? quesId : undefined,
     });
 
     return res.status(201).json({
       success: true,
-      message: "User registered successfully",
       exists: false,
+      message: "User registered successfully",
       user: newUser,
     });
+  } catch (err) {
+    console.error("Register Error:", err);
 
-  } catch (error) {
-    console.error("Error registering user:", error);
+    // Handle MongoDB duplicate key error specifically
+    if (err.code === 11000) {
+      const duplicateField = Object.keys(err.keyPattern)[0];
+      return res.status(400).json({
+        success: false,
+        message: `Duplicate value for ${duplicateField}`,
+      });
+    }
 
     return res.status(500).json({
       success: false,
@@ -99,5 +135,8 @@ const registerUser = async (req, res) => {
     });
   }
 };
+
+module.exports = { registerUser };
+
 
 module.exports = { checkUserExistance, registerUser };
