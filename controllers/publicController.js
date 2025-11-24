@@ -113,13 +113,12 @@ const registerUser = async (req, res) => {
       role,
 
       // Student-only fields
-      roll_no: role === "student" ? roll_no : undefined,
+      roll_no,
       batch: role === "student" ? batch : undefined,
       examId: role === "student" ? examId : undefined,
 
       // Teacher-only fields
       quesId: role === "teacher" ? quesId : undefined,
-      roll_no: role === "teacher" ? roll_no : undefined,
     });
 
     return res.status(201).json({
@@ -147,7 +146,7 @@ const registerUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser };
+
 
 
 module.exports = { checkUserExistance, registerUser };
