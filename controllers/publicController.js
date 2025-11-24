@@ -109,6 +109,7 @@ const registerUser = async (req, res) => {
 
       // Teacher-only fields
       quesId: role === "teacher" ? quesId : undefined,
+      roll_no: role === "teacher" ? roll_no : undefined,
     });
 
     return res.status(201).json({

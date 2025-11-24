@@ -5,7 +5,8 @@ const teacherSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   quesId: { type: String, unique: true },
-  role: { type: String, enum: ["teacher"], required: true }
+  role: { type: String, enum: ["teacher"], required: true },
+  roll_no: { type: String, required: true }
 });
 
 
