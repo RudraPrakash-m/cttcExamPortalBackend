@@ -21,9 +21,12 @@ const checkUserExistance = async (req, res) => {
       (await TEACHER_MODEL.findOne({ clerkId: id }));
 
     if(!user){
-      throw new ExpressError(404, "user not found");
+      return res.status(404).json({
+      success: false,
+      message: "user not found",
+    }); 
     }
-    
+
     return res.status(200).json({
       success: true,
       exists: Boolean(user),
